@@ -187,3 +187,39 @@ class App extends StatelessWidget {
 가독성이 매우 떨어진다.
 
 이대로는 점점 더 길어지고 복잡해져서 작업하기 힘들 것이다.
+
+<br>
+
+## 3.1 Developer Tools
+
+제목은 `Developer Tools` 라고 되어 있지만
+
+`Column` 과 `Row` 라는 두가지 Widget 을 배웠던 것을 다시금 정리했다.
+
+(여기서는 `Column` 과 `Row` 를 내가 알던 개념의 반대로 설명해주고 있다.
+
+서로 **상-하로 놓고 싶을 때는 Column** 을 사용하고, **좌-우로 놓고 싶을 때는 Row** 를 사용한다고 한다.
+
+무튼 이 부분이 내가 알던 개념이랑 달라서 적어놔야겠다 싶어서 이렇게 따로 써놓는다. 굳이 따지지 않고 넘어가려고 한다.)
+
+`Row` 와 `Column` 은 `MainAxis` 와 `CrossAxis` 를 가지고 있다.
+
+Row 의 MainAxis 는 수평(가로)방향이다.
+
+Row 의 CrossAxis sms 수직(세로)방향이다.
+
+Column 의 MainAxis 는 수직(세로)방향이다.
+
+Column 의 CrossAxis 는 수평(가로)방향이다.
+
+=> `Row` 에서는 `가로`가 Main, `Column` 에서는 `세로`가 Main 이다.
+
+`space(간격)` 를 주기 위해서는 `SizedBox` 를 사용해야 한다.
+
+색상을 주기 위해서는 `Colors` 를 사용해야 한다. 직접 외부에서 가져온 색을 입력해 넣을 수도 있고, 팔레트에 있는 색상을 사용할 수도 있다.
+
+`Layout` 이 헷갈린다면, 개발자 도구를 사용하면 된다.
+
+내부에 어떤 위젯이 있는지, 어떻게 설정되어 있는지 쉽게 알 수 있다.
+
+<br>
