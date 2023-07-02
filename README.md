@@ -260,3 +260,105 @@ Row(
 ```
 
 <br>
+
+## 3.3 VSCode Settings
+
+vscode 에서 작업을 하다보면, 파란색 줄로 경고문이 나타나는것을 확인할 수 있다.
+
+마우스를 올려보면, 이런 경고가 나타난다.
+
+```
+Use 'const' with the constructor to improve performance.
+Try adding the 'const' keyword to the constructor invocation.dart(prefer_const_constructors)
+```
+
+Dart 는 constant(상수) 개념을 지원한다.
+
+constant(상수)로 값을 지정하게 되면, 컴파일전에 그 value(값)을 알 수 있기 때문에 컴파일러는 변수를 위한 메모리 공간을 만드는 대신, 상수를 계산해서 대체하게된다.
+
+이는 훨씬 더 나은 코드를 만들어 준다.
+
+경고문처럼 실제로 값이 바뀌지 않을 예정이라면 constant 로 만드는 것이 더 나을 수도 있다. const 를 추가하게되면 바로 파란색 줄이 사라지게 된다.
+
+런타임 대신 컴파일러가 컴파일 중에 값을 산정할 수 있으므로 app 이 동작하는데 더 쉽다.
+
+하지만 어떤 것은 상수가 될 수 있고, 어떤 것은 될 수 없는지 기억하고 있는 것은 쉽지 않기 때문에 vscode 설정을 통해 해결하도록 한다.
+
+```json
+...
+"editor.codeActionsOnSave": {
+    "source.fixAll": true
+  }
+...
+```
+
+<br>
+
+## 3.4 Code Actions
+
+`Code Actions` 는 코드를 매우 간단한 방법으로 리팩토링하게 해준다.
+
+예를 들어 기존코드에서 Text 를 padding 안에 넣는다던지, Row 안에 Text 를 넣는다던지, Row 나 Col 을 감싸는 상위에 padding 을 추가하는 등의 작업을 할 때 Container 를 만들고 child 에 붙여넣기하는 식의 수동으로 코드를 수정한다.
+
+이 과정이 귀찮고 실수를 하기 쉽기 때문에, 코드 우측에 보이는 전구를 누르면 보이는 Code Actions 를 이용한다.
+
+마우스로 전구를 직접 클릭해도 되지만, 마우스 호버시 보이는 단축키를 이용할 수도 있다.(command + .)
+
+<br>
+
+## 3.5 Reusable Widgets
+
+반복 사용되는 위젯을 재사용이 가능하도록 만들 수 있다.
+
+main 이 아닌 widget 폴더에 위젯으로 사용할 버튼을 클래스로 생성한다.
+
+모든 위젯은 각자 나름대로의 build 메소드를 실행시켜야만 한다.
+
+배경 색상, 텍스트 색상, 텍스트 내용을 전송해서 재사용하기 위해 아래처럼 코드를 작성한다.
+
+```dart
+// button.dart
+import 'package:flutter/material.dart';
+
+class Button extends StatelessWidget {
+  final String text;
+  final Color bgColor;
+  final Color textColor;
+
+  const Button({
+    super.key,
+    required this.text,
+    required this.bgColor,
+    required this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(
+            45,
+          )),
+      child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 20,
+            horizontal: 50,
+          ),
+          child: Text(
+            text,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 20,
+            ),
+          )),
+    );
+  }
+}
+```
+
+위의 위젯도 클래스일 뿐이다.
+
+Dart 에서 만든 클래스처럼 프로퍼티들을 추가해주는 작업을 했다.
+
+타입을 설정한 후, 생성자 함수에 넣기만 하면 된다.
