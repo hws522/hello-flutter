@@ -223,3 +223,40 @@ Column 의 CrossAxis 는 수평(가로)방향이다.
 내부에 어떤 위젯이 있는지, 어떻게 설정되어 있는지 쉽게 알 수 있다.
 
 <br>
+
+## 3.2 Buttons Section
+
+`Container` 라는 Widget 을 사용한다.
+
+`Container` 는 `<div>` 같은 것이다. child 를 가지고 있는 단순한 box.
+
+앞으로 자주 사용할 것이다.
+
+```dart
+...
+Row(
+  children: [
+    Container(
+      decoration: BoxDecoration(
+          color: Colors.amber,
+          borderRadius: BorderRadius.circular(
+            45,
+          )),
+      child: Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: 20,
+            horizontal: 50,
+          ),
+          child: Text(
+            'Transfer',
+            style: TextStyle(
+              fontSize: 20,
+            ),
+          )),
+    )
+  ],
+)
+...
+```
+
+<br>
