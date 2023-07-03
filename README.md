@@ -362,3 +362,62 @@ class Button extends StatelessWidget {
 Dart 에서 만든 클래스처럼 프로퍼티들을 추가해주는 작업을 했다.
 
 타입을 설정한 후, 생성자 함수에 넣기만 하면 된다.
+
+<br>
+
+## 3.6 Cards
+
+```dart
+...
+Container(
+  decoration: BoxDecoration(
+    color: const Color(0xff1f2123),
+    borderRadius: BorderRadius.circular(25),
+  ),
+  child: Padding(
+    padding: const EdgeInsets.all(30),
+    child: Row(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Euro',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Row(
+              children: [
+                const Text(
+                  '6 428',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                  ),
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  'EUR',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 20,
+                  ),
+                ),
+              ],
+            )
+          ],
+        )
+      ],
+    ),
+  ))
+```
+
+<br>
