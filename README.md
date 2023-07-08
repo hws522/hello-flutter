@@ -449,3 +449,148 @@ Container(
 ```
 
 <br>
+
+## 3.8 Reusable Cards
+
+하단에 위치하는 카드들을 재사용 가능한 위젯을 이용하기 위해 위젯을 생성한다.
+
+생성과 동시에 재사용할 때 필요할만한 데이터들을 정하고 해당 데이터들을 property 로 만든다.
+
+그리고 code action 이나 직접 생성자를 만든다.
+
+색상반전을 표현하기 위해 반전을 체크하는 임의의 property(isInverted) 를 만든다.
+
+그 후 하드코딩된, 재사용 시 property 가 들어갈 자리에 property 로 값을 수정해준다.
+
+반전 색상을 지정할 때 삼항연산자를 이용해 지정하는데 이때 색상을 그대로 복사붙여넣기 하는 것 보단 상위에서 변수로 색상을 지정하여 쓰면 깔끔하다. 이때 `_` 를 붙여서 private 하게 만들겠다는 것을 의미한다.
+
+```dart
+import 'package:flutter/material.dart';
+
+class CurrencyCard extends StatelessWidget {
+  final String name, code, amount;
+  final IconData icon;
+  final bool isInverted;
+
+  final _blackColor = const Color(0xff1f2123);
+  final _whiteColor = const Color(0xffffffff);
+
+  const CurrencyCard({
+    super.key,
+    required this.name,
+    required this.code,
+    required this.amount,
+    required this.icon,
+    required this.isInverted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        clipBehavior: Clip.hardEdge,
+        decoration: BoxDecoration(
+          color: isInverted ? _whiteColor : _blackColor,
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(30),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: TextStyle(
+                      color: isInverted ? _blackColor : _whiteColor,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        amount,
+                        style: TextStyle(
+                          color: isInverted ? _blackColor : _whiteColor,
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        code,
+                        style: TextStyle(
+                          color: isInverted
+                              ? _blackColor
+                              : Colors.white.withOpacity(0.8),
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+              Transform.scale(
+                  scale: 2.2,
+                  child: Transform.translate(
+                    offset: const Offset(-5, 12),
+                    child: Icon(
+                      icon,
+                      color: isInverted ? _blackColor : _whiteColor,
+                      size: 88,
+                    ),
+                  ))
+            ],
+          ),
+        ));
+  }
+}
+```
+
+카드 위젯을 여러개 넣다보면 에러가 발생한다. 화면을 벗어나기 때문이다.
+
+화면을 넘쳐흐르는 UI 를 만들 때 화면을 스크롤링할 수 있도록 만들 수 있다.
+
+app 을 감싸는 body 에 `SingleChildScrollView` 위젯을 사용하면 스크롤이 가능하다.
+
+```dart
+Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+          backgroundColor: const Color(0xff181818),
+          body: SingleChildScrollView(
+            child: Padding(
+              ...
+            )
+            ...
+          )
+          ...
+        )
+      ...
+    )
+  ...
+}
+```
+
+카드가 겹쳐있는듯한 느낌을 주려면 Transform.translate 위젯을 이용하면 된다.
+
+```dart
+...
+  Transform.translate(
+    offset: const Offset(0, -30),
+    child: const CurrencyCard(
+      name: 'Bitcoin',
+      code: 'BTC',
+      amount: '9 785',
+      icon: Icons.currency_bitcoin,
+      isInverted: true,
+    ),
+  ),
+...
+```
