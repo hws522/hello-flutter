@@ -421,3 +421,31 @@ Container(
 ```
 
 <br>
+
+## 3.7 Icons and Transforms
+
+`Transform` 을 이용하면, `Transform` 내부 child 의 크기나 위치를 변경할 수 있다.
+
+아이콘의 크기를 직접 키우게 되면, 해당 아이콘을 감싸는 카드의 크기가 같이 커져서 원하는 이미지를 만들 수 없다.
+
+`Transform` 을 이용해서 아이콘의 크기만을 키운 후, 상위 컨테이너의 `clipBehavior` 속성을 이용하면 하위 위젯들의 크기가 커졌을 경우 보이지 않도록 할 수 있다.
+
+```dart
+...
+Container(
+  clipBehavior: Clip.hardEdge,
+...
+  Transform.scale(
+    scale: 2.2,
+    child: Transform.translate(
+      offset: const Offset(-5, 12),
+      child: const Icon(
+        Icons.euro_rounded,
+        color: Colors.white,
+        size: 88,
+      ),
+  ))
+)
+```
+
+<br>
