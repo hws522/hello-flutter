@@ -730,3 +730,141 @@ setState 는 기본적으로 새로운 데이터와 함께 build 메서드를 �
 데이터의 변화를 무조건 setState 내부에 넣을 필요는 없지만, 가독성이 더 좋기 때문에 권장된다.
 
 <br>
+
+## 4.2 Recap
+
+setState 함수를 이용해 flutter 는 build 메서드를 다시 실행한다.
+
+setState 함수를 사용하지 않으면, onClicked 함수 내부에 console.log 로 확인 시 counter 값은 업데이트 되는 것이 확인 되지만 화면은 업데이트 되지 않는다.
+
+데이터의 업데이트가 build 메서드를 다시 실행하지는 않기 때문이다.
+
+react 와는 다르게, 더 좋은 위젯들을 사용할 것이기 때문에 state 를 자주 사용하지는 않는다.
+
+<br>
+
+## 4.3 BuildContext
+
+`BuildContext` 를 이용하면 색상, 크기, 글자 굵기 등 app 의 모든 스타일적인 요소를 한곳에서 지정할 수 있다.
+
+`theme: ThemData` 를 이용해서 원하는 스타일을 지정한다.
+
+theme 를 만들면, 해당 theme 은 애플리케이션 위젯의 state 에 있다는 것을 알 수 있다.
+
+그리고 그 애플리케이션 위젯의 state 는 MyLargeTitle 이라는 자식을 가지고 있다.
+
+MyLargeTitle 에서 theme 값에 접근 하려면, BuildContext 를 이용한다.
+
+부모에게 직접 접근하는 것이다.
+
+위젯 트리에 대해 알아야하는데, flutter 가 어떻게 렌더링 되는지 알 수 있다.
+
+위젯 트리 상으로 MyLargeTitle 은 아래로 5단계를 내려가야 한다.
+
+context 는 Text 이전에 있는 모든 상위 요소들에 대한 정보다.
+
+context 는 MyLargeTitle Text 의 부모 요소들의 모든 정보를 담고 있다.
+
+즉 context 는 위젯 트리에 대한 정보가 담겨있고, 매우 먼 요소의 데이터를 가져올 수 있기 때문에 유용하다.
+
+context 를 이용해서 해당 위젯이 어떤 위젯이고, 부모 요소는 무엇인지 알 수 있고 그 상위 부모 요소에도 접근할 수 있다.
+
+아래처럼 `Theme.of(context).textTheme.titleLarge` 이런 식으로 불러온다.
+
+```dart
+...
+class _AppState extends State<App> {
+  ...
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        textTheme: const TextTheme(
+          titleLarge: TextStyle(
+            color: Colors.red,
+          ),
+        ),
+      ),
+      ...
+    );
+  }
+}
+
+class MyLargeTitle extends StatelessWidget {
+  ...
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'My Large Title',
+      style: TextStyle(
+        fontSize: 30,
+        color: Theme.of(context).textTheme.titleLarge?.color,
+      ),
+    );
+  }
+}
+```
+
+정리하면, BuildContext 는 위젯 트리에서 위젯의 위치를 제공하고 이를 통해 상위 요소 데이터에 접근할 수 있다.
+
+<br>
+
+## 4.4 Widget Lifecycle
+
+`StatefulWidget` 은 살아있다.
+
+이게 무슨말이냐하면, react 처럼 `생명주기(Lifecycle)`를 가지고 있다는 것이다.
+
+생명주기는 여러 메서드들에 반응하는데, 그 중 가장 중요한 건 `initState`, `dispose`, `build` 다.
+
+build 는 위젯에서 UI 를 만든다.
+
+initState 는 build 이전에 호출되며, 변수를 초기화하며 api update 구독 등을 할 수 있게 해준다. 그 후 build 가 호출된다.
+
+dispose 는 위젯이 위젯 트리에서 제거될 때 실행된다. 여기서는 이벤트 리스너 같은 것들을 구독 취소하는 것이다.
+
+외울필요는 없고, 그저 이러한 것들이 widget life cycle 이라는 것을 알아야한다는 것 뿐이다.
+
+```dart
+...
+class MyLargeTitle extends StatefulWidget {
+  const MyLargeTitle({
+    super.key,
+  });
+
+  @override
+  State<MyLargeTitle> createState() => _MyLargeTitleState();
+}
+
+class _MyLargeTitleState extends State<MyLargeTitle> {
+  int count = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print('initState!');
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    print('dispose!');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'My Large Title',
+      style: TextStyle(
+        fontSize: 30,
+        color: Theme.of(context).textTheme.titleLarge?.color,
+      ),
+    );
+  }
+}
+
+```
+
+<br>
