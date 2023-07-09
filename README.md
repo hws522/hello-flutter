@@ -666,3 +666,67 @@ class _AppState extends State<App> {
 ```
 
 <br>
+
+## 4.1 setState
+
+State 를 가지고 있는 `StatefulWidget` 을 만들었다.
+
+```dart
+class App extends StatefulWidget {
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  ...
+}
+```
+
+그리고 State 에 UI 를 넣고 데이터도 넣었다.
+
+```dart
+class _AppState extends State<App> {
+  int counter = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      ...
+    );
+  }
+}
+```
+
+데이터도 수정했다.
+
+```dart
+...
+void onClicked() {
+    counter = counter + 1;
+  }
+...
+```
+
+하지만 `setState` 함수를 호출하지 않는다면, `build` 메서드는 다시 실행되지 않는다. 플러터는 게으르기 때문이다.
+
+`setState` 함수는 State 클래스에게 데이터가 변경되었다고 알리는 함수다.
+
+```dart
+int counter = 0;
+
+void onClicked() {
+  setState(() {
+    counter = counter + 1;
+  });
+}
+```
+
+위처럼 setState 함수를 이용해 flutter 의 위젯에게 새로운 데이터가 있다고 알려주는 것이다.
+
+그러면 flutter 는 build 메서드를 다시 실행한다.
+
+setState 는 기본적으로 새로운 데이터와 함께 build 메서드를 한 번 더 호출하는 것이다.
+
+데이터의 변화를 무조건 setState 내부에 넣을 필요는 없지만, 가독성이 더 좋기 때문에 권장된다.
+
+<br>
