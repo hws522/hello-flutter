@@ -594,3 +594,75 @@ Widget build(BuildContext context) {
   ),
 ...
 ```
+
+<br>
+
+## 4.0 State
+
+**Stateful Widget**
+
+지금까지는 `Stateless Widget` 을 사용했다.
+
+`Stateless Widget` 은 매우 간단하다.
+
+build 메서드를 통해 그저 UI 를 출력할 뿐이다.
+
+`Stateful Widget` 은 상태를 가지고 있어서 Stateful 로 불린다.
+
+Stateful widget 은 두 파트로 나뉜다.
+
+첫번째는 상태가 없는 위젯 그 자체다.
+
+두번째는 위젯의 상태(state)로, 위젯의 state 는 데이터와 UI 를 가지고 있는 부분이다.
+
+그리고 Stateful Widget 의 데이터는 dart class property 일 뿐이다.
+
+아래는 간단히 클릭한 횟수를 화면에 그려주는 state 를 구현한 코드이다.
+
+```dart
+class App extends StatefulWidget {
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  int counter = 0;
+
+  void onClicked() {
+    counter = counter + 1;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        backgroundColor: const Color(0xFFF4EDDB),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Click Count',
+                style: TextStyle(fontSize: 30),
+              ),
+              Text(
+                '$counter',
+                style: const TextStyle(fontSize: 30),
+              ),
+              IconButton(
+                iconSize: 40,
+                onPressed: onClicked,
+                icon: const Icon(
+                  Icons.add_box_rounded,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+<br>
