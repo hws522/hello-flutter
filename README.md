@@ -930,3 +930,145 @@ Flexible(
 ```
 
 <br>
+
+## 5.1 Timer
+
+카운트를 시작할 함수를 만든다.
+
+해당 함수는 `Timer` 를 만드는데, `Timer` 는 Dart 의 표준 라이브러리에 포함되어 있다.
+
+아래처럼 `Timer` 를 바로 초기화하지 않고, 사용자가 버튼을 누를 때만 타이머가 생성되도록 하기 위해 `late` 라는 `variable modifier` 를 사용한다.
+
+`late` 는 이 property 를 당장 초기화하지 않아도 된다는 뜻이지만, 반드시 사용하기전에 초기화한다고 약속하는 것이다.
+
+```dart
+class _HomeScreenState extends State<HomeScreen> {
+  int totalSeconds = 1500;
+  late Timer timer;
+
+
+  void onTick(Timer timer) {
+    setState(() {
+      totalSeconds--;
+    });
+  }
+
+// Timer 를 초기화하는 method
+// 매 초 마다 onTick 함수를 실행한다.
+  void onStartPressed() {
+    timer = Timer.periodic(
+      const Duration(seconds: 1),
+      onTick,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      ...
+    )
+  }
+}
+```
+
+<br>
+
+## 5.2 Pause Play
+
+일시정지 기능을 만들기 위해, isRunning 이라는 `boolean property` 를 만든다.
+
+타이머의 작동상태에 따라 다른 아이콘을 보여주기 위해 삼항연산자로 처리한다.
+
+```dart
+...
+Flexible(
+  flex: 3,
+  child: Center(
+    child: IconButton(
+      ...
+      icon: Icon(isRunning
+          ? Icons.pause_circle_outline
+          : Icons.play_circle_outline),
+    ),
+  ),
+),
+```
+
+이전에 만든 타이머 시작 함수안에 `setState` 로 `isRunning` 을 `true` 로 업데이트 한다.
+
+일시정지 상태일 때 버튼을 누르면 카운트를 시작하고 작동 중일 때 버튼을 누르면 일시정지하기 위해 새로운 `method` 를 만들어준다.
+
+`onPausePressed` 라는 새로운 `method` 는 일시정지 기능을 하는 함수로서 `timer.cancel()` 을 통해 타이머를 멈추고 `setState` 에서 `isRunning` 을 `false` 로 업데이트 한다.
+
+```dart
+void onPausePressed() {
+  timer.cancel();
+  setState(() {
+    isRunning = false;
+  });
+}
+```
+
+`onPressed` 를 작동 상태에 따라 만들었던 `method` 를 삼항연산자로 처리한다.
+
+```dart
+Flexible(
+  flex: 3,
+  child: Center(
+    child: IconButton(
+     ...
+      onPressed: isRunning ? onPausePressed : onStartPressed,
+      ...
+    ),
+  ),
+),
+```
+
+<br>
+
+## 5.3 Date Format
+
+몇 번을 완료했는지 확인하기 위한 `totalPomodoros` 라는 새로운 `property` 를 추가한다.
+
+매 초 마다 실행되는 `onTick method` 에 조건을 걸어 `totalSeconds` 가 0 일 경우 타이머를 중지하고 `totalPomodoros` 를 증가시키고 다시 1500 부터 시작하도록 만든다.
+
+1500 을 `static const` 변수 `twentyFiveMinutes` 로 만들어 실수를 줄인다.
+
+```dart
+...
+void onTick(Timer timer) {
+    setState(() {
+      totalSeconds = totalSeconds - 1;
+    });
+    if (totalSeconds == 0) {
+      setState(() {
+        totalPomodoros = totalPomodoros + 1;
+        isRunning = false;
+        totalSeconds = twentyFiveMinutes;
+      });
+      timer.cancel();
+    } else {
+      setState(() {
+        totalSeconds = totalSeconds - 1;
+      });
+    }
+  }
+...
+```
+
+1500 처럼 초 단위를 분 단위로 보여주도록 하기 위해 format 이라는 새로운 method 를 만든다.
+
+해당 method 는 숫자를 입력받아 문자열로 반환한다.
+
+`Duration` 을 이용해 기본값으로 변경되는 `format` 을 보고 내가 원하는 모양으로 바꾸기 위해, `split` 을 기준으로 나누고 필요없는 문자열을 잘라 `format` 을 바꿔 return 한다.
+
+```dart
+...
+ String format(int seconds) {
+  var duration = Duration(seconds: seconds);
+  return duration.toString().split(".").first.substring(2, 7);
+}
+...
+```
+
+<br>
