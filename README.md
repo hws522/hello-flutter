@@ -868,3 +868,65 @@ class _MyLargeTitleState extends State<MyLargeTitle> {
 ```
 
 <br>
+
+## 5.0 User Interface
+
+`POMODORO APP` 을 만들어본다.
+
+`Scaffold` body 에 Column 을 넣고 children 배열을 `Flexible` 로 구성한다.
+
+`Flexible` 은 UI 를 하드코딩이 아닌, `비율에 기반`에서 더 유연하게 만들 수 있도록 해준다.
+
+아래처럼 `Flexible` 은 상위 박스 내부의 박스들 중, 하나의 박스가 얼마나 공간을 차지할 지 비율을 정할 수 있다.
+
+```dart
+class _HomeScreenState extends State<HomeScreen> {
+
+ @override
+ Widget build(BuildContext context) {
+   return Scaffold(
+     body: Column(
+       children: [
+         Flexible(
+           flex: 1,
+           child: Container(
+             ...
+           ),
+         ),
+         Flexible(
+           flex: 2,
+           child: Container(
+             ...
+           ),
+         ),
+         Flexible(
+           flex: 1,
+           child: Container(
+             ...
+           ),
+         ),
+       ]
+     ),
+   );
+ }
+}
+```
+
+`Expanded` 을 이용하면 하위 `child` 에 들어가는 `container` 를 끝까지 확장시켜서 사용할 수 있다.
+
+```dart
+Flexible(
+  flex: 1,
+  child: Row(
+    children: [
+      Expanded(
+        child: Container(
+        ...
+        )
+      ),
+    ],
+  ),
+)
+```
+
+<br>
