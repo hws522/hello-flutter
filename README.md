@@ -1095,3 +1095,55 @@ home_screen_6.dart 의 Stateless widget 은 `Scaffold` 를 반환하는데, `sca
 여기에 appBar 를 렌더링 한다.
 
 <br>
+
+## 6.2 Data Fetching
+
+lib 폴더안에 services 라는 새로운 폴더를 만들어주고 그 안에 `api_service.dart` 라는 파일을 만든다.
+
+`api_service.dart` 안에는 flutter 위젯이나 클래스가 아닌 `평범한 Dart 클래스인 ApiService` 를 만든다.
+
+```dart
+class ApiService {
+  final String baseUrl = "https://webtoon-crawler.nomadcoders.workers.dev";
+  final String today = "today";
+  ...
+}
+
+```
+
+내가 원하는 URL 에 요청을 보내기 위해서는 `http` 패키지가 필요하다.
+
+Flutter 나 Dart 패키지를 찾고 싶으면 `pub.dev` 라는 공식 패키지 보관소로 가면 된다.
+
+`http` 패키지를 설치 후, GET 요청을 보낼 준비를 한다.
+
+```dart
+class ApiService {
+...
+  void getTodaysToons() async {
+    final url = Uri.parse('$baseUrl/$today');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      print(response.body);
+      return;
+    }
+    throw Error();
+  }
+}
+```
+
+api 에 요청을 할 경우, 해당 요청을 처리하는데 오랜 시간이 걸릴 수 있다.
+
+기다리게 하지 않으면, Dart 는 api 를 호출한 뒤 결괏값을 기다리지 않고 바로 다음으로 넘어가기 때문에 해당 요청이 처리되어 응답을 반환할 때까지 기다리게 해야한다.
+
+이때 `async - await` 키워드를 사용하면 된다.
+
+`await` 와 `Future` 타입을 보통 같이 사용한다.
+
+`http.get(URL))` 에 마우스를 올려보면 아래와 같이 나온다.
+
+```dart
+  Future<Response> get(Uri url, {Map<String, String>? headers})
+```
+
+`Future` 는 미래에 받을 값의 타입을 알려주기 때문에, 완료가 되었을 때 `Response` 라는 타입을 반환할 거라고 알려주는 것이다.
