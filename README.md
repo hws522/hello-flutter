@@ -1147,3 +1147,66 @@ api 에 요청을 할 경우, 해당 요청을 처리하는데 오랜 시간이 
 ```
 
 `Future` 는 미래에 받을 값의 타입을 알려주기 때문에, 완료가 되었을 때 `Response` 라는 타입을 반환할 거라고 알려주는 것이다.
+
+<br>
+
+## 6.3 fromJson
+
+서버로부터 받는 JSON 형식의 데이터를 Dart, Flutter 에서 쓸 수 있는 데이터 형식인 클래스로 바꿔야 한다.
+
+현재 response.body 의 타입이 string 이기 때문에, JSON 으로 decode 해줘야 한다. 이때 `jsonDecode` 라는 함수를 사용한다.
+
+jsonDecode 함수의 반환타입은 `dynamic` 이기 때문에, 직접 타입을 정해줘야한다.
+
+response.body 는 여러 object 로 이루어진 리스트이기 때문에 `final List<dynamic> webtoons = jsonDecode(response.body)` 로 디코딩해준다.
+
+`named constructor` 를 사용해 초기화한다.
+
+```dart
+class WebtoonModel {
+  final String title, thumb, id;
+
+  WebtoonModel.fromJson(Map<String, dynamic> json)
+      : title = json['title'],
+        thumb = json['thumb'],
+        id = json['id'];
+}
+```
+
+마지막으로 반복문을 통해 JSON 으로 변환한 데이터를 List 로 만든다.
+
+```dart
+class ApiService {
+  ...
+  Future<List<WebtoonModel>> getTodaysToons() async {
+    List<WebtoonModel> webtoonInstances = [];
+    ...
+    if (response.statusCode == 200) {
+      final List<dynamic> webtoons = jsonDecode(response.body);
+      for (var webtoon in webtoons) {
+        webtoonInstances.add(WebtoonModel.fromJson(webtoon));
+      }
+      return webtoonInstances;
+    }
+    throw Error();
+  }
+}
+```
+
+<br>
+
+## 6.4 Recap
+
+- `http.get` 은 `Future` 타입을 반환한다.
+
+- `Future` 타입은 당장 완료될 수 있는 작업이 아니라는 걸 말한다.
+
+- `Future` 타입을 기다리기위해 await 를 사용할 때는 async 를 같이 사용해줘야 한다.
+
+- http.get 으로 받아오는 response 의 타입은 string 이라서 JSON 으로 변환시켜주기위해 `jsonDecode` 를 사용한다.
+
+- 변환한 값은 dynamic 타입이기에 직접 지정을 해줘야하고, `List<dynamic>` 으로 지정해주긴 했지만 지워도 상관은 없다. 여기서는 다만 명시적으로 표현하기 위함일 뿐이다.
+
+- 변환한 리스트의 데이터 하나당 fromJson 이라는 `named constructor` 를 이용해서 WebtoonModel 을 만들어준 뒤, 반복문으로 webtoonInstances 라는 리스트에 넣어 마지막에 반환한다.
+
+<br>
