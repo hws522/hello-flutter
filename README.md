@@ -1072,3 +1072,26 @@ void onTick(Timer timer) {
 ```
 
 <br>
+
+## 6.1 AppBar
+
+```dart
+class App extends StatelessWidget {
+  const App({super.key}); // 이 위젯의 key 를 stateless widget 이라는 슈퍼클래스에 보낸 것.
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: HomeScreen(),
+    );
+  }
+}
+```
+
+위젯은 key 라는 걸 가지고 있고, ID 처럼 쓰인다. 그리고 flutter 는 위젯을 식별하기 위해서 ID 를 쓴다.
+
+home_screen_6.dart 의 Stateless widget 은 `Scaffold` 를 반환하는데, `scaffold` 는 `screen 을 위한 기본적인 레이아웃과 설정을 제공`해준다.
+
+여기에 appBar 를 렌더링 한다.
+
+<br>
