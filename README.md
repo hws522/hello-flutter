@@ -1210,3 +1210,53 @@ class ApiService {
 - 변환한 리스트의 데이터 하나당 fromJson 이라는 `named constructor` 를 이용해서 WebtoonModel 을 만들어준 뒤, 반복문으로 webtoonInstances 라는 리스트에 넣어 마지막에 반환한다.
 
 <br>
+
+## 6.5 waitForWebToons
+
+ApiService 클래스의 모든 method 와 property 를 static 으로 바꾼다. 현재 클래스에는 state 가 없기 때문이다.
+
+```dart
+class ApiService {
+  static const String baseUrl =
+      "https://webtoon-crawler.nomadcoders.workers.dev";
+  static const String today = "today";
+
+  static Future<List<WebtoonModel>> getTodaysToons() async {
+    ...
+  }
+}
+```
+
+api 를 통해 가져온 데이터가 필요한 곳이 `HomeScreen` 위젯이기 때문에 `HomeScreen` 에서 메서드를 호출한다.
+
+`Future` 데이터를 불러와서 보여주는 방법은 두가지가 있지만, 기초적인 방법으로 적용한 후 나중에 발전된 방법을 사용한다.
+
+`HomeScreen` 위젯을 `StatefulWidget` 으로 바꾼다.
+
+그리고, `State` 가 가지는 데이터를 써준다.
+
+`initState` 를 사용해서 api 를 호출하는 메서드를 불러오게 한다.
+
+`setState` 를 통해 `StatefulWidget` 의 UI 가 새로고침될 수 있도록 한다.
+
+```dart
+class _HomeScreenState extends State<HomeScreen> {
+  List<WebtoonModel> webtoons = [];
+  bool isLoading = true;
+
+  void waitForWebToons() async {
+    webtoons = await ApiService.getTodaysToons();
+    isLoading = false;
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    waitForWebToons();
+  }
+  ...
+}
+```
+
+<br>
