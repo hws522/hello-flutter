@@ -1308,3 +1308,75 @@ body: FutureBuilder(
 ```
 
 <br>
+
+## 6.7 ListView
+
+<br>
+
+가져온 데이터를 보여주기 위해, `Text` 대신 `ListView` 를 사용한다.
+
+많은 양의 데이터를 연속적으로 보여주고 싶을 때는 `Row - Col` 은 적절하지 않기 때문이다.
+
+`ListView` 는 버전이 많은데 beginner 버전부터 사용해본다.
+
+```dart
+...
+body: FutureBuilder(
+        future: webtoons,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView(
+              children: [
+                for(var webtoon in snapshot.data!) Text(webtoon.title)
+              ]
+            )
+          }
+          ...
+        },
+      ),
+```
+
+위처럼 코드를 짜면 비효율적이다. `ListView` 안에 넣기만 하면 나온다는 뜻으로 만든 코드이다.
+
+최적화되지 않았기 때문에, 한번에 모든 아이템들을 로딩하고 있다.
+
+무한 스크롤 같은 기능을 쓰면, 결국은 메모리가 죽고 말 것이다.
+
+사용자가 보고있는 사진, 섹션만 로딩해야 한다.
+
+그래서 다른 종류의 `ListView` 를 사용한다.
+
+`ListView.builder` 는 좀 더 최적화 된 `ListView` 다.
+
+`ListView.builder` 는 사용자가 보고 있는 아이템만 build 한다. 보고있지 않은 아이템은 메모리에서 삭제한다.
+
+`ListView.builder` 는 한번에 모든 아이템을 만드는 대신, 만들려는 아이템에 `itemBuilder` 를 실행하고 필요할 때 아이템을 만든다.
+
+페이지네이션처럼.
+
+`itemBuilder` 에 로그를 넣으면, 스크롤할 때 새로운 아이템인덱스가 추가되는 걸 확인할 수 있다.
+
+`ListView.separated` 는 필수 인자를 하나 더 가지는데, `separatorBuilder` 라는 widget 을 리턴해야하는 함수다.
+
+해당 함수는 리스트 아이템 사이에 렌더링된다. 구분자처럼.
+
+```dart
+...
+body: FutureBuilder(
+        future: webtoons,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                var webtoon = snapshot.data![index];
+                return Text(webtoon.title);
+              },
+              separatorBuilder: (context, index) => const SizedBox(width: 20),
+            );
+          }
+          return const Text('Loading....');
+        },
+      ),
+```
