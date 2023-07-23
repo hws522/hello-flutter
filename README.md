@@ -1380,3 +1380,190 @@ body: FutureBuilder(
         },
       ),
 ```
+
+<br>
+
+## 6.8 Webtoon Card
+
+웹툰의 표지를 보여주는 이미지를 만들기 위해, `Column: children[]` 에 `sizedBox` 와 `ListView` 를 넣으면 에러가 발생한다.
+
+`ListView` 에 높이값이 없기 때문인데, `Column` 이 `ListView` 의 높이를 알지못해 제한없는 높이값이 넘어왔다는 뜻이다.
+
+이를 해결하기 위해 `ListView` 에 제한된 높이를 줘야하고, `Expanded` 로 감싸서 해결한다.
+
+`Expanded` 는 화면의 남는 공간을 차지하는 widget 이다.
+
+`Expanded` 안에 `ListView` 를 넣으면, ListView 가 남는 공간을 채우게 된다.
+
+```dart
+...
+builder: (context, snapshot) {
+  if (snapshot.hasData) {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 50,
+        ),
+        Expanded(child: makeList(snapshot))
+      ],
+    );
+  }
+}
+...
+```
+
+`Image.network` 를 이용해 URL 을 통한 이미지를 가져온다.
+
+이미지의 크기를 조절하기 위해, `Container child` 로 `Image.network` 를 옮기고 `Container` 의 너비를 설정한다.
+
+`SizedBox` 를 이용해 이미지와 텍스트 사이의 간격을 넓힌다.
+
+`Container` 를 사용한 이유는 해당 박스를 꾸밀 것이기 때문에 `decoration` 을 이용해서 박스를 적절하게 꾸며준다.
+
+`clipBehavior` 속성을 이용해 `BorderRadius` 가 적용될 수 있도록 한다.
+
+```dart
+ListView makeList(AsyncSnapshot<List<WebtoonModel>> snapshot) {
+    return ListView.separated(
+      scrollDirection: Axis.horizontal,
+      itemCount: snapshot.data!.length,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+      itemBuilder: (context, index) {
+        var webtoon = snapshot.data![index];
+        return Column(
+          children: [
+            Container(
+              width: 250,
+              clipBehavior: Clip.hardEdge,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    blurRadius: 15,
+                    offset: const Offset(10, 10),
+                    color: Colors.black.withOpacity(0.3),
+                  )
+                ],
+              ),
+              child: Image.network(webtoon.thumb),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Text(
+              webtoon.title,
+              style: const TextStyle(
+                fontSize: 22,
+              ),
+            ),
+          ],
+        );
+      },
+      separatorBuilder: (context, index) => const SizedBox(width: 40),
+    );
+  }
+```
+
+<br>
+
+## 6.9 Detail Screen
+
+이미지를 클릭하면 상세 페이지로 가게 하기 위한 작업을 한다.
+
+탭 이벤트를 감지하기 위해, `GestureDetector` 위젯을 사용한다.
+
+`GestureDetector` 는 대부분의 동작을 감지할 수 있는데, 그 중 onTap 옵션을 사용한다.
+
+onTap 은 버튼을 탭했을 때 발생하는 이벤트로 유저가 버튼을 클릭했다는 것을 의미한다.
+
+해당 옵션에 들어갈 함수로 호출할 새로운 화면을 만들기 위해 `detail_screen` 위젯을 새로 만든다.
+
+`Navigator` 를 이용해 화면을 전환한다. `Navigator` 는 `route` 를 push 할 수 있다.
+
+그리고 중요한 점은 `Navigator` 는 애니메이션을 이용해 유저가 다른 페이지로 왔다고 느끼게 해줄 수 있다. (사실 또 다른 `StatelessWidget` 을 렌더했을 뿐인데 말이다)
+
+`MaterialPageRoute` 를 이용해 `route` 를 만들어 push 한다.
+
+이 `route` 는 `StatelessWidget` 일 뿐인 `DetailScreen` 을 렌더링한다.
+
+```dart
+@override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailScreen(
+              title: title,
+              thumb: thumb,
+              id: id,
+            ),
+            fullscreenDialog: true,
+          ),
+        );
+      },
+      ...
+    );
+  }
+```
+
+`DetailScreen` 은 `HomeScreen` 을 떠나기 때문에, `scaffold` 를 렌더링해야한다.
+
+다시 그려줘야한다는 의미다.
+
+`HomeScreen` 과 거의 동일한 `Scaffold` 를 만들어주고, '오늘의 웹툰' 대신 선택한 웹툰의 제목을 보여주도록 한다.
+
+body 에는 이미지를 보여줄 수 있도록 Column 과 Row 를 사용하여 UI를 맞춰준다.
+
+```dart
+...
+final String title, thumb, id;
+...
+@override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 2,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.green,
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 24,
+          ),
+        ),
+      ),
+      body: Column(
+        children: [
+          const SizedBox(
+            height: 50,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 250,
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 15,
+                      offset: const Offset(10, 10),
+                      color: Colors.black.withOpacity(0.3),
+                    )
+                  ],
+                ),
+                child: Image.network(thumb),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+```
+
+<br>
