@@ -1260,3 +1260,51 @@ class _HomeScreenState extends State<HomeScreen> {
 ```
 
 <br>
+
+## 6.6 FutureBuilder
+
+데이터를 fetch 하는 방법중 단순한 방법으로 `async - await` 를 사용하고, `State` 안에 결과를 넣은다음 `setState` 를 호출했다.
+
+하지만 `State` 는 많이 쓰이지 않기 때문에 최대한 사용하지 않는 것이 좋다.
+
+`State` 를 거의 쓰지 않거나, 전혀 쓰지 않는 좋은 `Widget` 과 `Framework` 가 많이 있다.
+
+아래는 다른 방법으로 `StatelessWidget` 인 상태에서 fetch 할 수 있다.
+
+HomeScreen 을 다시 `StatelessWidget` 으로 바꿔준다.
+
+그리고 api 를 호출하는 함수를 불러온다.
+
+```dart
+class HomeScreen extends StatelessWidget {
+  HomeScreen({super.key});
+
+  Future<List<WebtoonModel>> webtoons = ApiService.getTodaysToons();
+  ...
+}
+```
+
+이전처럼` async - await` 를 사용하지 않았기 때문에, 기다리지 않는 것을 알 수 있다. 로딩상태도 업데이트되지 않는다.
+
+이것을 해결하기위한 `Widget` 으로 `FutureBuilder` 가 있다.
+
+아래처럼 `FutureBuilder` 는 `await` 를 쓸 필요없이 알아서 처리해준다.
+
+`builder` 안의 `snapshot` 을 통해 `Future` 의 상태도 알 수 있다.
+
+이를 통해 아래처럼 `Future` 를 기다릴 수 있고, 그동안의 로딩처리도 가능하다.
+
+```dart
+...
+body: FutureBuilder(
+        future: webtoons,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return const Text("There is data!");
+          }
+          return const Text('Loading....');
+        },
+      ),
+```
+
+<br>
