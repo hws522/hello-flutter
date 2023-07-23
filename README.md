@@ -1567,3 +1567,183 @@ final String title, thumb, id;
 ```
 
 <br>
+
+## 6.10 Hero
+
+`Hero` widget 은 화면을 전환할 때, 애니메이션을 제공해준다.
+
+Hero widget 을 두 개의 화면에 각각 사용하고, 같은 tag 를 주기만 하면된다.
+
+기존에 동일한 이미지를 사용하던 DetailScreen 의 Container 와 WebtoonWidget 의 Container 를 Hero 위젯으로 감싸준 뒤, tag 를 해당 웹툰의 id 로 맞춰준다.
+
+```dart
+//detail_screen.dart
+...
+Hero(
+  tag: id,
+  child: Container(
+    width: 250,
+    clipBehavior: Clip.hardEdge,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+        BoxShadow(
+          blurRadius: 15,
+          offset: const Offset(10, 10),
+          color: Colors.black.withOpacity(0.3),
+        )
+      ],
+    ),
+    child: Image.network(thumb),
+  ),
+),
+
+//webtoon_widget.dart
+...
+Hero(
+  tag: id,
+  child: Container(
+    width: 250,
+    clipBehavior: Clip.hardEdge,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(15),
+      boxShadow: [
+        BoxShadow(
+          blurRadius: 15,
+          offset: const Offset(10, 10),
+          color: Colors.black.withOpacity(0.3),
+        )
+      ],
+    ),
+    child: Image.network(thumb),
+  ),
+),
+```
+
+<br>
+
+## 6.11 Recap
+
+<br>
+
+## 6.12 ApiService
+
+새로운 URL 을 fetch 해본다. 여기서는 웹툰의 상세 정보를 가져온다.
+
+이전과 같이 string 으로 받아온 데이터를 json 으로 바꾸기 위해, 새로운 model 을 생성한다.
+
+```dart
+// webtoon_detail_model
+class WebtoonDetailModel {
+  final String title, about, genre, age;
+
+  WebtoonDetailModel.fromJson(Map<String, dynamic> json)
+      : title = json['title'],
+        about = json['about'],
+        genre = json['genre'],
+        age = json['age'];
+}
+...
+// webtoon_episode_model
+class WebtoonEpisodeModel {
+  final String id, title, rating, date;
+
+  WebtoonEpisodeModel.fromJson(Map<String, dynamic> json)
+      : id = json['id'],
+        title = json['title'],
+        rating = json['rating'],
+        date = json['date'];
+}
+```
+
+`api_service` 에서 동일한 방식으로 api 를 호출하고 결괏값을 `jsonDecode` 으로 decode 한다.
+
+그 후 위에서 만든 fromJson 으로 새로운 json 을 return 한다.
+
+```dart
+...
+static Future<WebtoonDetailModel> getToonById(String id) async {
+    final url = Uri.parse("$baseUrl/$id");
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final webtoon = jsonDecode(response.body);
+      return WebtoonDetailModel.fromJson(webtoon);
+    }
+    throw Error();
+  }
+
+static Future<List<WebtoonEpisodeModel>> getLatestEpisodesById(
+    String id) async {
+  List<WebtoonEpisodeModel> episodesInstances = [];
+  final url = Uri.parse("$baseUrl/$id/episodes");
+  final response = await http.get(url);
+  if (response.statusCode == 200) {
+    final episodes = jsonDecode(response.body);
+    for (var episode in episodes) {
+      episodesInstances.add(WebtoonEpisodeModel.fromJson(episode));
+    }
+    return episodesInstances;
+  }
+  throw Error();
+}
+```
+
+<br>
+
+## 6.13 Futures
+
+`DetailScreen` 에서 새로 만든 `getToonById` 와 `getLatestEpisodesById` 을 사용할 때, id 값을 필요로 하기 때문에 `HomeScreen` 에서처럼 동일한 방법의 사용방식은 무리가 있다.
+
+먼저 `DetailScreen` 을 `StatefulWidget` 으로 만든다.
+
+그러면 아래에 `State` 의 `build method` 가 별개로 나뉘기 때문에, `State` 가 속한 `StatefulWidget` 의 data 를 받아올 때 `widget.data` 이런 형식으로 데이터를 받아온다.
+
+`widget` 은 부모에게 가라는 의미다. 여기서 부모는 `DetailScreen`, `StatefulWidget` 이다.
+
+초기화 하고 싶은 `property` 가 있지만 `constructor` 에서는 불가능하다.
+
+이 때, `late` 타입으로 지정한뒤, `initState` 함수에서 초기화한다.
+
+`initState` 에서는 `widget.id` 에 접근이 가능하다. 이를 활용해서 `Future` 를 초기화할 수 있다.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:hello_flutter/models/webtoon_detail_model.dart';
+import 'package:hello_flutter/models/webtoon_episode_model.dart';
+import 'package:hello_flutter/services/api_service.dart';
+
+class DetailScreen extends StatefulWidget {
+  ...
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  late Future<WebtoonDetailModel> webtoon;
+  late Future<List<WebtoonEpisodeModel>> episodes;
+
+  @override
+  void initState() {
+    super.initState();
+    webtoon = ApiService.getToonById(widget.id);
+    episodes = ApiService.getLatestEpisodesById(widget.id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      ...
+      appBar: AppBar(
+        ...
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            fontSize: 24,
+          ),
+        ),
+      ),
+      ...
+    );
+  }
+}
+```
+
+<br>
