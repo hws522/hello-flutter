@@ -1794,3 +1794,88 @@ FutureBuilder(
   },
 )
 ```
+
+<br>
+
+## 6.15 Episodes
+
+이전 `DetailScreen` 위젯을 `Stateless` 에서 `Stateful` 위젯으로 바꾼 유일한 이유는 `initState` 메서드 때문이다.
+
+그래야 선택한 웹툰의 id 를 인자로 받는 `getToonById` 와 `getLatestEpisodesById` 를 사용할 수 있기 때문이다.
+
+이제 최신 에피소드들을 보여줄 새로운 `FutureBuilder` 를 만든다.
+
+새로운 `FutureBuilder` 는 episodes 를 `future` 로 받고, `builder` 내부 함수에는 `snapshot.hasData` 가 참이면 UI 를 그리고, 거짓이면 아무것도 안그리기 위해 빈 컨테이너를 넣어준다.
+
+`ListView` 나 `ListViewBuilder` 는 리스트가 엄청 길고 최적화가 중요한 곳에 사용하면 되고, 지금처럼 10개씩 가져오는 가벼운 경우에는 별 상관이 없다. `Column` 을 return 해주도록 한다.
+
+가져온 데이터들을 `Column` 내부에서 뿌려준 후, 해당 데이터들을 컨테이너로 감싸서 꾸며줌과 동시에 회차로 이동할 수 있도록 버튼화 시킨다.
+
+`body` 를 `SingleChildScrollView` 로 감싸서 화면을 벗어나는 부분을 스크롤화 시킨다.
+
+```dart
+// detail_screen
+...
+body: SingleChildScrollView(
+  child: Padding(
+    padding: const EdgeInsets.all(50),
+    child: Column(
+      children: [
+        ...
+        FutureBuilder(
+          future: episodes,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Column(
+                children: [
+                  for (var episode in snapshot.data!)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.green.shade400,
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: 5,
+                            offset: const Offset(5, 5),
+                            color: Colors.black.withOpacity(0.1),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10,
+                          horizontal: 20,
+                        ),
+                        child: Row(
+                          mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              episode.title,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const Icon(
+                              Icons.chevron_right_rounded,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                ],
+              );
+            }
+            return Container();
+          },
+        )
+      ],
+    ),
+  ),
+),
+```
+
+<br>
