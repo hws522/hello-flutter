@@ -1747,3 +1747,50 @@ class _DetailScreenState extends State<DetailScreen> {
 ```
 
 <br>
+
+## 6.14 Detail Info
+
+CSS 를 적용하는 것처럼, UI 를 만들어준다.
+
+웹툰 이미지를 눌렀을 때 나타나는 상세 페이지의 간격과 크기를 조절해준다.
+
+이 때 `SizedBox, Column, Row` 등을 이용한다.
+
+데이터를 활용하기 위해 `FutureBuilder` 를 이용한다.
+
+```dart
+// detail_screen
+...
+const SizedBox(
+  height: 25,
+),
+FutureBuilder(
+  future: webtoon,
+  builder: (context, snapshot) {
+    if (snapshot.hasData) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 50,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              snapshot.data!.about,
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            Text(
+              '${snapshot.data!.genre} / ${snapshot.data!.age}',
+              style: const TextStyle(fontSize: 16),
+            ),
+          ],
+        ),
+      );
+    }
+    return const Text("...");
+  },
+)
+```
