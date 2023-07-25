@@ -1879,3 +1879,85 @@ body: SingleChildScrollView(
 ```
 
 <br>
+
+## 6.16 Url Launcher
+
+사용자가 버튼을 클릭하면, 브라우저로 이동하도록 하는 기능을 구현한다.
+
+그러기 위해 url_launcher 패키지를 설치한다.
+
+설치 후에는 어떤 종류의 url 을 열 건지 명시해줘야한다.
+
+http url 뿐만 아니라, sms, telephone url 도 가능하기 때문이다.
+
+ios 의 경우, `ios/Runner/Info.plist` 경로로 가서 하단에 아래의 코드를 붙여넣기 해준다.
+
+```plist
+<key>LSApplicationQueriesSchemes</key>
+<array>
+  <!-- <string>sms</string> -->
+  <!-- <string>tel</string> -->
+  <string>https</string>
+</array>
+```
+
+flutter 가 실행되는 config 파일이기 때문에 디버깅 중지 후 재실행시킨다.
+
+메서드를 새로 만들어서 url launcher 를 사용하도록 한다.
+
+launchUrl 은 Future 를 가져다 주는 함수이기 때문에 async - await 를 사용해야 한다.
+
+혹은 launchUrlString 을 이용해서 url parse 과정 없이 바로 url 을 입력해줘도 된다.
+
+```dart
+onButtonTap() async {
+    await launchUrlString(
+        "https://comic.naver.com/webtoon/detail?titleId=$webtoonId&no=${episode.id}");
+  }
+```
+
+버튼이 클릭되는 걸 감지하고 처리하기 위해, GestureDetector 를 추가한다.
+
+episodes 를 담당하던 FutureBuilder 내부 Column 에, Container 로 버튼들이 묶여져있는 부분을 Episode widget 으로 분리한다.
+
+```dart
+// episode_widget.dart
+import 'package:flutter/material.dart';
+import 'package:hello_flutter/models/webtoon_episode_model.dart';
+import 'package:url_launcher/url_launcher_string.dart';
+
+class Episode extends StatelessWidget {
+  const Episode({
+    super.key,
+    required this.episode,
+  });
+
+  final WebtoonEpisodeModel episode;
+
+  onButtonTap() async {
+    await launchUrlString('https://google.com');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onButtonTap,
+      child: Container(
+        ...
+      ),
+    );
+  }
+}
+```
+
+버튼을 눌렀을 때, `google.com` 으로 이동하는 것을 확인 후 `onButtonTap()` 내부 `launchUrlString` 경로를 웹툰으로 바꿔준다.
+
+```dart
+...
+onButtonTap() async {
+  await launchUrlString("https://comic.naver.com/webtoon/detail?titleId=$webtoonId&no=${episode.id}");
+}
+...
+```
+
+<br>
