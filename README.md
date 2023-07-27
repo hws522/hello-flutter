@@ -1961,3 +1961,116 @@ onButtonTap() async {
 ```
 
 <br>
+
+## 6.17 Favorites
+
+좋아요 버튼을 만들어 본다.
+
+사용자가 하트를 눌렀던 상태가 유지되도록 하기 위해 로컬스토리지 처럼 만들어본다.
+
+`detail_screen` 에서 `scaffold` 내부 `appBar` 에 보면 `List<Widget> 인 actions` 를 만들 수 있다.
+
+actions 배열 내부에 IconButton 을 만든다.
+
+아이콘에는 조건을 걸어서 좋아요를 눌렀을 때와 누르지 않았을 때 다른 아이콘을 보여줄 수 있도록 한다.
+
+`shared_preferences` 패키지를 이용해서 휴대폰 저장소에 데이터를 담는다.
+
+좋아요 버튼의 로직은, 먼저 좋아요를 누른 모든 ID 의 리스트를 가져온다.
+
+그 다음 화면이 그려지면 해당 widget 의 ID 가 사용자가 좋아요를 누른 ID 목록에 있는지 확인한다.
+
+그 과정을 통해 버튼을 조건부로 보여준다.
+
+사용자가 좋아요 버튼을 누를 경우, 기존에 있던 좋아요를 누른 ID 리스트에서 사용자의 ID 를 더하거나 빼준다.
+
+이를 위해 새로운 class member 를 만든다.
+
+`late SharedPreferences prefs;`
+
+그리고 새로 만든 initPrefs() 메서드를 initState() 안에 넣는다.
+
+initPrefs() 내부 `prefs = await SharedPreferences.getInstance();` 코드로, 사용자의 저장소에 connection 이 만들어진다.
+
+사용자의 저장소 내부를 검색해서 string List 가 있는지 확인하기 위해 `likedToons` 라는 key 를 이용한다.
+
+좋아요를 누른 것을 기억하고 조건 처리하기 위해, `state` 값으로 `isLiked` 를 만들어주고 `initPrefs()` 내에서 관리한다.
+
+다시한번 정리하자면, `핸드폰 저장소에 액세스를 얻고 -> likedToons 라는 이름의 String List 가 있는지 살펴보고 -> 있다면 웹툰의 ID 를 가지고 있는지 확인`하는 것이다.
+
+```dart
+...
+Future initPrefs() async {
+  prefs = await SharedPreferences.getInstance();
+  final likedToons = prefs.getStringList('likedToons');
+  if (likedToons != null) {
+    <!-- likedToons 안에 값이 있을 경우, 그 값들 중 widget 의 ID 와 맞는게 있는지 확인한다.  -->
+    if (likedToons.contains(widget.id) == true) {
+      <!-- 여기서 widget.id 를 사용하는 이유는 여기는 State 고 statefulWidget 인 DetailScreen 의 ID 를 가져오기 위함이다.-->
+      setState(() {
+        isLiked = true;
+      });
+    }
+  } else {
+    <!-- 사용자가 처음으로 앱을 실행하면 likedToons 는 존재하지 않을 것이기 때문에 조건처리를 해준다. -->
+    await prefs.setStringList('likedToons', []);
+  }
+}
+
+@override
+void initState() {
+  super.initState();
+  webtoon = ApiService.getToonById(widget.id);
+  episodes = ApiService.getLatestEpisodesById(widget.id);
+  initPrefs();
+}
+...
+```
+
+이제 이 로직을 UI 에 반영해준다.
+
+`isLiked` 에 따라 아이콘을 조건부로 출력해주고, 아이콘을 클릭했을 때 사용할 `onHeartTap` 이라는 method 를 만든다.
+
+```dart
+...
+onHeartTap() async {
+    <!-- 휴대폰 저장소에서 가져온다 -->
+  final likedToons = prefs.getStringList('likedToons');
+  if (likedToons != null) {
+    if (isLiked) {
+      likedToons.remove(widget.id);
+    } else {
+      likedToons.add(widget.id);
+    }
+    <!-- 휴대폰 저장소에 저장한다 -->
+    await prefs.setStringList('likedToons', likedToons);
+    setState(() {
+      isLiked = !isLiked;
+    });
+  }
+}
+```
+
+```dart
+@override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        elevation: 2,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.green,
+        actions: [
+          IconButton(
+            onPressed: onHeartTap,
+            icon: Icon(
+              isLiked ? Icons.favorite : Icons.favorite_outline,
+            ),
+          )
+        ],
+        ...
+      ),
+      ...
+    );
+  }
+```
